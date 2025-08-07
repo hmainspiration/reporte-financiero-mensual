@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Financiero Mensual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-button.active svg { transform: rotate(180deg); }
+        .currency-input::before { content: 'C$'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .currency-input { padding-left: 2.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { display: inline-block; width: 1rem; height: 1rem; vertical-align: text-bottom; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .75s linear infinite; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-800">MINISTERIO DE ADMINISTRACIÓN FINANCIERA</h1>
+            <p class="text-lg md:text-xl text-gray-600">Información Financiera Mensual - Jurisdicción Nicaragua, C.A.</p>
+        </header>
+
+        <form id="financial-form" class="space-y-4">
+
+            <div class="bg-white rounded-xl shadow-md">
+                <button type="button" class="accordion-button w-full p-5 text-left font-semibold text-lg flex justify-between items-center" data-target="#datos-generales">
+                    <span>1. Información General del Reporte</span>
+                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="datos-generales" class="accordion-content px-5 pb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                        <div class="space-y-4">
+                            <input type="text" id="clave-iglesia" placeholder="Clave Iglesia" class="w-full p-3 border rounded-lg">
+                            <input type="text" id="nombre-iglesia" placeholder="Nombre Iglesia Local" class="w-full p-3 border rounded-lg">
+                            <input type="text" id="distrito" placeholder="Distrito" class="w-full p-3 border rounded-lg">
+                            <input type="text" id="departamento" placeholder="Departamento" class="w-full p-3 border rounded-lg">
+                            <input type="number" id="miembros-activos" placeholder="Miembros Económicamente Activos" class="w-full p-3 border rounded-lg">
+                        </div>
+                        <div class="space-y-4">
+                            <input type="text" id="mes-reporte" placeholder="Mes del Reporte (e.g., Junio)" class="w-full p-3 border rounded-lg">
+                            <input type="number" id="ano-reporte" placeholder="Año del Reporte (e.g., 2024)" class="w-full p-3 border rounded-lg">
+                            <input type="text" id="nombre-ministro" placeholder="Nombre del Ministro" class="w-full p-3 border rounded-lg">
+                            <input type="text" id="grado-ministro" placeholder="Grado del Ministro" class="w-full p-3 border rounded-lg">
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">+505</span>
+                                <input type="tel" id="tel-ministro" placeholder="Teléfono / Celular" class="w-full p-3 border rounded-lg pl-14">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md">
+                <button type="button" class="accordion-button w-full p-5 text-left font-semibold text-lg flex justify-between items-center" data-target="#entradas">
+                    <span>2. Entradas (Ingresos)</span>
+                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="entradas" class="accordion-content px-5 pb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t">
+                        <div class="md:col-span-2">
+                             <label class="font-medium text-gray-700">Saldo del Mes Anterior</label>
+                            <div class="relative mt-1">
+                                <input type="number" step="0.01" id="saldo-anterior" placeholder="0.00" class="w-full p-3 border rounded-lg currency-input">
+                            </div>
+                        </div>
+                        <fieldset class="border rounded-lg p-4 space-y-3">
+                            <legend class="font-semibold px-2">2.1 Ingresos por Ofrendas</legend>
+                            <div class="relative"><input type="number" step="0.01" id="ing-diezmos" placeholder="Diezmos" class="calc-ingreso-ofrenda w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-ofrendas-ordinarias" placeholder="Ofrendas Ordinarias" class="calc-ingreso-ofrenda w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-primicias" placeholder="Primicias" class="calc-ingreso-ofrenda w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-ayuda-encargado" placeholder="Ayuda al Encargado" class="calc-ingreso-ofrenda w-full p-2 border rounded currency-input"></div>
+                            <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Ofrendas: <span id="total-ofrendas">C$ 0.00</span></div>
+                        </fieldset>
+                        <fieldset class="border rounded-lg p-4 space-y-3">
+                            <legend class="font-semibold px-2">2.2 Ingresos por Colectas Especiales</legend>
+                            <div class="relative"><input type="number" step="0.01" id="ing-ceremonial" placeholder="Ceremonial" class="calc-ingreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-ofrenda-especial-sdd" placeholder="Ofrenda Especial SdD NJG" class="calc-ingreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-evangelizacion" placeholder="Evangelización Mundial" class="calc-ingreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="ing-santa-cena" placeholder="Colecta de Santa Cena" class="calc-ingreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Colectas Esp.: <span id="total-colectas-especiales">C$ 0.00</span></div>
+                        </fieldset>
+                        <fieldset class="md:col-span-2 border rounded-lg p-4 space-y-3">
+                             <legend class="font-semibold px-2">2.3 Ingresos por Colectas Locales</legend>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="relative"><input type="number" step="0.01" id="ing-servicios-publicos" placeholder="Pago de Servicios Públicos" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-arreglos-locales" placeholder="Arreglos Locales" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-mantenimiento" placeholder="Mantenimiento y Conservación" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-construccion-local" placeholder="Construcción Local" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-muebles" placeholder="Muebles y Artículos" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-viajes-ministro" placeholder="Viajes y viáticos para Ministro" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-reuniones-ministeriales" placeholder="Reuniones Ministeriales" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-atencion-ministros" placeholder="Atención a Ministros" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-viajes-extranjero" placeholder="Viajes fuera del País" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-actividades-locales" placeholder="Actividades Locales" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-ciudad-lldm" placeholder="Ofrendas para Ciudad LLDM" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="ing-adquisicion-terreno" placeholder="Adquisición Terreno/Edificio" class="calc-ingreso-local w-full p-2 border rounded currency-input"></div>
+                             </div>
+                             <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Colectas Locales: <span id="total-colectas-locales-ingreso">C$ 0.00</span></div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md">
+                <button type="button" class="accordion-button w-full p-5 text-left font-semibold text-lg flex justify-between items-center" data-target="#salidas">
+                    <span>3. Salidas (Egresos)</span>
+                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="salidas" class="accordion-content px-5 pb-5">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t">
+                        <fieldset class="border rounded-lg p-4 space-y-3">
+                            <legend class="font-semibold px-2">3.1 Gastos por Manutención del Ministro</legend>
+                            <div class="relative"><input type="number" step="0.01" id="egr-asignacion" placeholder="Asignación Autorizada" class="calc-egreso-manutencion w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="egr-gomer" placeholder="Gomer del Mes" class="calc-egreso-manutencion w-full p-2 border rounded currency-input"></div>
+                            <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Manutención: <span id="total-manutencion">C$ 0.00</span></div>
+                        </fieldset>
+                        <fieldset class="border rounded-lg p-4 space-y-3">
+                            <legend class="font-semibold px-2">3.2 Egresos por Colectas Especiales</legend>
+                            <div class="relative"><input type="number" step="0.01" id="egr-ceremonial" placeholder="Ceremonial" class="calc-egreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="egr-ofrenda-especial-sdd" placeholder="Ofrenda Especial SdD NJG" class="calc-egreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="egr-evangelizacion" placeholder="Evangelización Mundial" class="calc-egreso-especial w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="egr-santa-cena" placeholder="Colecta de Santa Cena" class="calc-egreso-especial w-full p-2 border rounded currency-input"></div>
+                             <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Colectas Esp.: <span id="total-colectas-especiales-egreso">C$ 0.00</span></div>
+                        </fieldset>
+                        <fieldset class="md:col-span-2 border rounded-lg p-4 space-y-3">
+                             <legend class="font-semibold px-2">3.3 Egresos por Colectas Locales</legend>
+                              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="relative"><input type="number" step="0.01" id="egr-servicios-publicos" placeholder="Pago de Servicios Públicos" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-arreglos-locales" placeholder="Arreglos Locales" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-mantenimiento" placeholder="Mantenimiento y Conservación" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-traspaso-construccion" placeholder="Traspaso para Construcción Local" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-muebles" placeholder="Muebles y Artículos" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-viajes-ministro" placeholder="Viajes y viáticos para Ministro" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-reuniones-ministeriales" placeholder="Reuniones Ministeriales" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-atencion-ministros" placeholder="Atención a Ministros" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-viajes-extranjero" placeholder="Viajes fuera del País" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-actividades-locales" placeholder="Actividades Locales" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-ciudad-lldm" placeholder="Ofrendas para Ciudad LLDM" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                                <div class="relative"><input type="number" step="0.01" id="egr-adquisicion-terreno" placeholder="Adquisición Terreno/Edificio" class="calc-egreso-local w-full p-2 border rounded currency-input"></div>
+                             </div>
+                             <div class="p-2 bg-gray-100 rounded-lg text-right font-bold">Total Colectas Locales: <span id="total-colectas-locales-egreso">C$ 0.00</span></div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md">
+                 <button type="button" class="accordion-button w-full p-5 text-left font-semibold text-lg flex justify-between items-center" data-target="#resumen">
+                    <span>4. Resumen y Cierre</span>
+                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="resumen" class="accordion-content px-5 pb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
+                        <div class="space-y-3 bg-blue-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-lg text-blue-800">Resumen Flujo de Efectivo</h3>
+                            <div class="flex justify-between"><span>Saldo Inicial del Mes:</span> <span id="resumen-saldo-inicial" class="font-semibold">C$ 0.00</span></div>
+                            <div class="flex justify-between"><span>Total Ingresos del Mes:</span> <span id="resumen-total-ingresos" class="font-semibold">C$ 0.00</span></div>
+                            <hr>
+                            <div class="flex justify-between font-bold"><span>Total Disponible del Mes:</span> <span id="resumen-total-disponible" class="text-green-600">C$ 0.00</span></div>
+                            <div class="flex justify-between"><span>Total Salidas del Mes:</span> <span id="resumen-total-salidas" class="font-semibold text-red-600">C$ 0.00</span></div>
+                            <hr>
+                            <div class="flex justify-between font-bold text-xl"><span>Utilidad o Remanente:</span> <span id="resumen-remanente" class="text-blue-800">C$ 0.00</span></div>
+                        </div>
+                        <div class="space-y-3 bg-green-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-lg text-green-800">Saldo del Remanente Distribuido A:</h3>
+                            <div class="relative"><input type="number" step="0.01" id="dist-direccion" placeholder="Dirección General (Diezmos de Diezmos)" class="calc-remanente w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="dist-tesoreria" placeholder="Tesorería (Cuenta de Remanentes)" class="calc-remanente w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="dist-pro-construccion" placeholder="Pro-Construcción" class="calc-remanente w-full p-2 border rounded currency-input"></div>
+                            <div class="relative"><input type="number" step="0.01" id="dist-otros" placeholder="Otros (Especificar en PDF)" class="calc-remanente w-full p-2 border rounded currency-input"></div>
+                        </div>
+                        <div class="md:col-span-2 space-y-3 bg-gray-50 p-4 rounded-lg">
+                             <h3 class="font-bold text-lg text-gray-800">Comisión Local de Finanzas</h3>
+                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <input type="text" id="comision-nombre-1" placeholder="Nombre 1" class="w-full p-2 border rounded">
+                                <input type="text" id="comision-nombre-2" placeholder="Nombre 2" class="w-full p-2 border rounded">
+                                <input type="text" id="comision-nombre-3" placeholder="Nombre 3" class="w-full p-2 border rounded">
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 pt-4">
+                <button type="button" id="clear-form" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Limpiar Formulario</button>
+                <button type="button" id="generate-pdf" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex-grow flex items-center justify-center gap-2">
+                    <span id="btn-text">Generar Reporte en PDF</span>
+                    <span id="btn-spinner" class="hidden spinner"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lógica del acordeón (ya funciona bien)
+            const accordionButtons = document.querySelectorAll('.accordion-button');
+            accordionButtons.forEach(button => {
+                if(button.dataset.target === '#datos-generales') {
+                    button.classList.add('active');
+                    const firstContent = document.querySelector(button.dataset.target);
+                    setTimeout(() => { firstContent.style.maxHeight = firstContent.scrollHeight + 'px'; }, 100);
+                }
+                button.addEventListener('click', () => {
+                    const content = document.querySelector(button.dataset.target);
+                    button.classList.toggle('active');
+                    if (button.classList.contains('active')) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    } else {
+                        content.style.maxHeight = null;
+                    }
+                });
+            });
+
+            const formatCurrency = (value) => {
+                const number = parseFloat(value) || 0;
+                return `C$ ${number.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            };
+            const getValue = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const getText = (id) => document.getElementById(id).value || '';
+            const calculateTotalForClass = (className, targetElementId) => {
+                const inputs = document.querySelectorAll(`.${className}`);
+                const total = Array.from(inputs).reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
+                document.getElementById(targetElementId).textContent = formatCurrency(total);
+                return total;
+            };
+
+            // <-- CORRECCIÓN 4: Función para calcular el remanente distribuido
+            const calculateAndDisplayRemanente = () => {
+                const totalRemanenteDistribuido = calculateTotalForClass('calc-remanente', 'resumen-remanente');
+                return totalRemanenteDistribuido;
+            };
+
+            const updateAllCalculations = () => {
+                // Ingresos
+                const totalOfrendas = calculateTotalForClass('calc-ingreso-ofrenda', 'total-ofrendas');
+                const totalColectasEspecialesIngreso = calculateTotalForClass('calc-ingreso-especial', 'total-colectas-especiales');
+                const totalColectasLocalesIngreso = calculateTotalForClass('calc-ingreso-local', 'total-colectas-locales-ingreso');
+                
+                // Egresos
+                const asignacion = getValue('egr-asignacion');
+                const gomer = getValue('egr-gomer');
+                // <-- CORRECCIÓN 2: Cálculo de manutención como resta
+                const totalManutencion = asignacion - gomer;
+                document.getElementById('total-manutencion').textContent = formatCurrency(totalManutencion);
+
+                const totalColectasEspecialesEgreso = calculateTotalForClass('calc-egreso-especial', 'total-colectas-especiales-egreso');
+                const totalColectasLocalesEgreso = calculateTotalForClass('calc-egreso-local', 'total-colectas-locales-egreso');
+                
+                // Resumen
+                const saldoAnterior = getValue('saldo-anterior');
+                const totalIngresos = totalOfrendas + totalColectasEspecialesIngreso + totalColectasLocalesIngreso;
+                const totalDisponible = saldoAnterior + totalIngresos;
+                
+                // <-- CORRECCIÓN 3: Cálculo del total de salidas
+                const totalSalidas = gomer + totalColectasEspecialesEgreso + totalColectasLocalesEgreso;
+                
+                // <-- CORRECCIÓN 4 (continuación): Se llama a la función para actualizar el remanente
+                const remanente = calculateAndDisplayRemanente();
+
+                // Actualizar campos del resumen
+                document.getElementById('resumen-saldo-inicial').textContent = formatCurrency(saldoAnterior);
+                document.getElementById('resumen-total-ingresos').textContent = formatCurrency(totalIngresos);
+                document.getElementById('resumen-total-disponible').textContent = formatCurrency(totalDisponible);
+                document.getElementById('resumen-total-salidas').textContent = formatCurrency(totalSalidas);
+            };
+
+            // Event Listeners para todos los campos numéricos
+            const inputsToWatch = document.querySelectorAll('input[type="number"]');
+            inputsToWatch.forEach(input => {
+                input.addEventListener('input', updateAllCalculations);
+            });
+
+            document.getElementById('clear-form').addEventListener('click', () => {
+                if(confirm('¿Estás seguro de que quieres limpiar todos los campos?')) {
+                    document.getElementById('financial-form').reset();
+                    updateAllCalculations();
+                }
+            });
+
+            // Llamada inicial para establecer los valores en cero
+            updateAllCalculations();
+            
+            // <-- CORRECCIÓN 1: Lógica de generación de PDF completa y funcional
+            document.getElementById('generate-pdf').addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+                const button = document.getElementById('generate-pdf');
+                const btnText = document.getElementById('btn-text');
+                const btnSpinner = document.getElementById('btn-spinner');
+                
+                button.disabled = true;
+                btnText.textContent = 'Generando...';
+                btnSpinner.classList.remove('hidden');
+
+                setTimeout(() => { // Usamos un timeout para que el spinner se muestre
+                    try {
+                        const pageW = doc.internal.pageSize.getWidth();
+                        const margin = 10;
+                        
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(12);
+                        doc.text("IGLESIA DEL DIOS VIVO COLUMNA Y APOYO DE LA VERDAD", pageW / 2, margin + 5, { align: 'center' });
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(11);
+                        doc.text("La Luz del Mundo", pageW / 2, margin + 10, { align: 'center' });
+                        doc.setFontSize(10);
+                        doc.text("MINISTERIO DE ADMINISTRACIÓN FINANCIERA", pageW / 2, margin + 16, { align: 'center' });
+                        doc.setFont('helvetica', 'bold');
+                        doc.text("INFORMACIÓN FINANCIERA MENSUAL", pageW / 2, margin + 22, { align: 'center' });
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(`Jurisdicción Nicaragua, C.A.`, pageW / 2, margin + 27, { align: 'center' });
+                        
+                        let startY = margin + 35;
+                        const infoBodyStyle = { fontSize: 9, cellPadding: 1.5, lineColor: '#000', lineWidth: 0.1 };
+                        const infoHeadStyle = { fontSize: 9, fontStyle: 'bold', fillColor: '#f0f0f0', textColor: '#333', cellPadding: 1.5, halign: 'center', lineColor: '#000', lineWidth: 0.1};
+                        
+                        doc.autoTable({
+                            startY: startY,
+                            body: [
+                                [{content: 'DATOS DE ESTE INFORME', colSpan: 4, styles: infoHeadStyle}],
+                                ['DEL MES DE:', getText('mes-reporte'), 'DEL AÑO:', getText('ano-reporte')],
+                                ['CLAVE IGLESIA:', getText('clave-iglesia'), 'NOMBRE IGLESIA:', getText('nombre-iglesia')],
+                                ['DISTRITO:', getText('distrito'), 'DEPARTAMENTO:', getText('departamento')],
+                                ['NOMBRE MINISTRO:', getText('nombre-ministro'), 'GRADO:', getText('grado-ministro')],
+                                ['TELÉFONO:', getText('tel-ministro'), 'MIEMBROS ACTIVOS:', getText('miembros-activos')],
+                            ],
+                            theme: 'grid', styles: infoBodyStyle, columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
+                        });
+                        
+                        startY = doc.autoTable.previous.finalY + 5;
+                        
+                        const bodyStyle = { fontSize: 8, cellPadding: 1.5, lineColor: '#000', lineWidth: 0.1 };
+                        const headStyle = { fontSize: 8, fontStyle: 'bold', fillColor: '#f0f0f0', textColor: '#333', halign: 'center', lineColor: '#000', lineWidth: 0.1 };
+
+                        doc.autoTable({
+                            startY: startY,
+                            head: [['FLUJO DE EFECTIVO (INGRESOS Y EGRESOS)', 'MONTO C$']],
+                            body: [
+                                [{content: 'SALDO DEL MES ANTERIOR', styles: { fontStyle: 'bold' }} , {content: document.getElementById('resumen-saldo-inicial').textContent, styles: { halign: 'right' }}],
+                                [{content: 'INGRESOS', colSpan: 2, styles: { ...headStyle, halign:'left' }}],
+                                ['Total Ofrendas', {content: document.getElementById('total-ofrendas').textContent, styles: { halign: 'right' }}],
+                                ['Total Colectas Especiales', {content: document.getElementById('total-colectas-especiales').textContent, styles: { halign: 'right' }}],
+                                ['Total Colectas Locales', {content: document.getElementById('total-colectas-locales-ingreso').textContent, styles: { halign: 'right' }}],
+                                [{content: 'TOTAL INGRESOS', styles: { fontStyle: 'bold' }} , {content: document.getElementById('resumen-total-ingresos').textContent, styles: { halign: 'right', fontStyle: 'bold' }}],
+                                [{content: 'TOTAL DISPONIBLE', styles: { fontStyle: 'bold' }} , {content: document.getElementById('resumen-total-disponible').textContent, styles: { halign: 'right', fontStyle: 'bold' }}],
+                                [{content: 'EGRESOS', colSpan: 2, styles: { ...headStyle, halign:'left' }}],
+                                ['Gomer del Mes', {content: formatCurrency(getValue('egr-gomer')), styles: { halign: 'right' }}],
+                                ['Total Egresos Colectas Especiales', {content: document.getElementById('total-colectas-especiales-egreso').textContent, styles: { halign: 'right' }}],
+                                ['Total Egresos Colectas Locales', {content: document.getElementById('total-colectas-locales-egreso').textContent, styles: { halign: 'right' }}],
+                                [{content: 'TOTAL SALIDAS', styles: { fontStyle: 'bold' }} , {content: document.getElementById('resumen-total-salidas').textContent, styles: { halign: 'right', fontStyle: 'bold' }}],
+                                [{content: 'UTILIDAD O REMANENTE', styles: { fontStyle: 'bold', fillColor: '#e0e7ff' }} , {content: document.getElementById('resumen-remanente').textContent, styles: { halign: 'right', fontStyle: 'bold', fillColor: '#e0e7ff' }}],
+                            ],
+                            theme: 'grid', styles: bodyStyle, headStyles: headStyle
+                        });
+                        
+                        startY = doc.autoTable.previous.finalY + 15;
+                        doc.autoTable({
+                            startY: startY,
+                            body: [
+                                [`Firma Ministro: ${getText('nombre-ministro')}`, `Firma Tesorero(a) Local`],
+                                ['_________________________', '_________________________']
+                            ],
+                            theme: 'plain',
+                            styles: { fontSize: 9, halign: 'center' }
+                        });
+
+                        doc.save(`Informe_Financiero_${getText('mes-reporte')}_${getText('ano-reporte')}.pdf`);
+                    
+                    } catch (error) {
+                        console.error("Error generando el PDF:", error);
+                        alert("Hubo un error al generar el PDF. Revisa la consola para más detalles.");
+                    } finally {
+                        button.disabled = false;
+                        btnText.textContent = 'Generar Reporte en PDF';
+                        btnSpinner.classList.add('hidden');
+                    }
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
