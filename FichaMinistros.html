@@ -396,7 +396,12 @@
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, 'Ficha Ministerial');
                 worksheet['!cols'] = [ { wch: 30 }, { wch: 40 }, { wch: 30 } ];
-                XLSX.writeFile(workbook, 'Ficha_Ministerial_2025.xlsx');
+
+                // **NUEVA LÓGICA PARA EL NOMBRE DEL ARCHIVO**
+                const nombreMinistro = document.getElementById('ministro-nombre-completo').value.trim() || 'Sin Nombre';
+                const fileName = `Ficha Ministerial ${nombreMinistro}.xlsx`;
+
+                XLSX.writeFile(workbook, fileName);
                 return true;
             } catch (error) {
                 console.error("Error al generar la hoja de cálculo:", error);
@@ -434,7 +439,7 @@
 
             setTimeout(() => {
                 if (exportToExcel()) {
-                    const nombreMinistro = document.getElementById('ministro-nombre-completo').value || 'Sin Nombre';
+                    const nombreMinistro = document.getElementById('ministro-nombre-completo').value.trim() || 'Sin Nombre';
                     const subject = `Ficha Ministerial 2025 - ${nombreMinistro}`;
                     const body = "Saludos,\n\nAdjunto la Ficha Ministerial completada.\n\nPor favor, no olvide adjuntar el archivo Excel que se acaba de descargar.";
                     const mailtoLink = `mailto:hmalldm95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -572,4 +577,3 @@
     </script>
 </body>
 </html>
-
