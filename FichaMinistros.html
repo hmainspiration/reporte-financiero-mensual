@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha Ministerial Digital </title>
+    <title>Ficha Ministerial Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,14 +42,31 @@
             @apply w-36 h-44 rounded-lg object-cover shadow-md;
         }
         .main-button {
-            @apply bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 text-lg transition-all duration-300;
+            @apply bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
         }
         .secondary-button {
             @apply bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-lg hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300;
         }
+        .action-button {
+             @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+        }
+        /* Animaciones para notificaciones */
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in { animation: slide-in 0.5s ease-out forwards; }
+
+        @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-slide-out { animation: slide-out 0.5s ease-in forwards; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
+    
+    <div id="notification-area" class="fixed top-5 right-5 z-50 space-y-2"></div>
 
     <div id="app-container" class="max-w-7xl mx-auto">
         <header class="text-center mb-10">
@@ -58,6 +75,7 @@
         </header>
 
         <div id="formulario-exportar">
+            <!-- SECCIÓN INFORMACIÓN DEL MINISTRO -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-user-tie"></i>Información del Ministro</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -71,7 +89,7 @@
                         <input type="file" id="ministro-photo-input" class="hidden" accept="image/*" onchange="previewImage(event, 'ministro-photo-preview', 'ministro-photo-placeholder')">
                     </div>
                     <div class="grid grid-cols-form gap-6 col-span-1 lg:col-span-3">
-                        <div><label class="form-label">Nombre Completo (Según la cédula)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Nombre Completo (Según la cédula)</label><input type="text" id="ministro-nombre-completo" class="form-input"></div>
                         <div><label class="form-label">Fecha de Nacimiento</label><input type="date" class="form-input"></div>
                         <div><label class="form-label">Ciudad</label><input type="text" class="form-input"></div>
                         <div><label class="form-label">Departamento</label><input type="text" class="form-input"></div>
@@ -110,6 +128,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN INFORMACIÓN DE LA ESPOSA -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-user-group"></i>Información de la Esposa</h2>
                  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -158,6 +177,7 @@
                 </div>
             </div>
             
+            <!-- SECCIÓN MINISTERIO -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-book-bible"></i>Ministerio</h2>
                 <div class="grid grid-cols-form gap-6">
@@ -186,6 +206,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN DISCIPLINA MINISTERIAL -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-gavel"></i>Disciplina Ministerial</h2>
                 <div class="grid grid-cols-form gap-6">
@@ -202,6 +223,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN HIJOS -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-children"></i>Información de los Hijos</h2>
                 <div class="flex flex-wrap items-end gap-4 mb-6 p-4 bg-indigo-50 rounded-lg">
@@ -221,10 +243,10 @@
                         <i class="fa-solid fa-plus mr-2"></i>Generar Fichas
                     </button>
                 </div>
-                <div id="hijos-container" class="space-y-6">
-                    </div>
+                <div id="hijos-container" class="space-y-6"></div>
             </div>
 
+            <!-- SECCIÓN RÉCORD MINISTERIAL -->
             <div class="form-section">
                 <h2 class="form-section-title"><i class="fa-solid fa-church"></i>Récord Ministerial</h2>
                 <div class="flex flex-wrap items-end gap-4 mb-6 p-4 bg-indigo-50 rounded-lg">
@@ -236,15 +258,21 @@
                         <i class="fa-solid fa-plus mr-2"></i>Generar Fichas
                     </button>
                 </div>
-                <div id="iglesias-container" class="space-y-6">
-                    </div>
+                <div id="iglesias-container" class="space-y-6"></div>
             </div>
         </div>
 
-        <div class="mt-10 mb-6 text-center">
+        <!-- SECCIÓN DE BOTONES DE ACCIÓN -->
+        <div class="mt-10 mb-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4">
+            <button id="btn-save-draft" class="secondary-button"><i class="fa-solid fa-save mr-2"></i>Guardar Borrador</button>
+            <button id="btn-load-draft" class="secondary-button"><i class="fa-solid fa-upload mr-2"></i>Cargar Borrador</button>
             <button id="btn-exportar-excel" class="main-button">
-                <span id="excel-btn-text"><i class="fa-solid fa-file-excel mr-2"></i>Exportar a Hoja de Cálculo</span>
-                <span id="excel-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Exportando...</span>
+                <span id="excel-btn-text"><i class="fa-solid fa-file-excel mr-2"></i>Descargar Copia</span>
+                <span id="excel-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Generando...</span>
+            </button>
+            <button id="btn-send-copy" class="action-button">
+                <span id="send-btn-text"><i class="fa-solid fa-paper-plane mr-2"></i>Enviar y Descargar Copia</span>
+                <span id="send-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Procesando...</span>
             </button>
         </div>
     </div>
@@ -267,12 +295,15 @@
         // --- Lógica para generar fichas de Hijos ---
         document.getElementById('btn-generar-hijos').addEventListener('click', function() {
             const cantidad = document.getElementById('cantidad-hijos').value;
+            generarFichasHijos(cantidad);
+        });
+
+        function generarFichasHijos(cantidad) {
             const container = document.getElementById('hijos-container');
             container.innerHTML = ''; // Limpiar contenedor
-
             for (let i = 1; i <= cantidad; i++) {
                 const hijoHTML = `
-                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in">
+                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in" data-index="${i}">
                         <h3 class="font-bold text-lg mb-4 text-indigo-700">Datos del Hijo/a ${i}</h3>
                         <div class="grid grid-cols-form gap-4">
                             <div><label class="form-label">Nombre Completo</label><input type="text" class="form-input"></div>
@@ -284,21 +315,23 @@
                             <div><label class="form-label">Desde Cuando</label><input type="date" class="form-input"></div>
                             <div><label class="form-label">¿Está en Tratamiento?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 container.innerHTML += hijoHTML;
             }
-        });
+        }
 
         // --- Lógica para generar fichas de Iglesias ---
         document.getElementById('btn-generar-iglesias').addEventListener('click', function() {
             const cantidad = document.getElementById('cantidad-iglesias').value;
+            generarFichasIglesias(cantidad);
+        });
+        
+        function generarFichasIglesias(cantidad) {
             const container = document.getElementById('iglesias-container');
             container.innerHTML = ''; // Limpiar contenedor
-
             for (let i = 1; i <= cantidad; i++) {
                 const iglesiaHTML = `
-                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in">
+                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in" data-index="${i}">
                         <h3 class="font-bold text-lg mb-4 text-indigo-700">Datos de la Iglesia ${i} donde fue enviado</h3>
                         <div class="grid grid-cols-form gap-4">
                             <div><label class="form-label">Iglesia</label><input type="text" class="form-input"></div>
@@ -315,104 +348,216 @@
                             <div><label class="form-label">Cuántos Miembros dejó Registrados</label><input type="number" class="form-input" min="0"></div>
                             <div><label class="form-label">Cuántos en Casa</label><input type="number" class="form-input" min="0"></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 container.innerHTML += iglesiaHTML;
             }
-        });
+        }
 
-        // --- NUEVA LÓGICA PARA EXPORTAR A HOJA DE CÁLCULO ---
+        // --- LÓGICA PARA EXPORTAR A HOJA DE CÁLCULO ---
+        function exportToExcel() {
+            try {
+                const data = [['Sección', 'Campo', 'Valor']]; // Encabezados
+                const formContainer = document.getElementById('formulario-exportar');
+
+                formContainer.querySelectorAll('.form-section').forEach(section => {
+                    const sectionTitle = section.querySelector('.form-section-title').innerText.trim();
+                    section.querySelectorAll('div > label').forEach(label => {
+                        const containerDiv = label.parentElement;
+                        const input = containerDiv.querySelector('input:not([type="file"]):not([type="checkbox"]), select');
+                        if (input && !input.closest('#hijos-container') && !input.closest('#iglesias-container')) {
+                            data.push([sectionTitle, label.innerText.trim(), input.value]);
+                        }
+                    });
+                    section.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        const label = checkbox.nextElementSibling;
+                        if (label) {
+                            data.push([sectionTitle, label.innerText.trim(), checkbox.checked ? 'Sí' : 'No']);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('#hijos-container > div').forEach((hijo, index) => {
+                     const hijoTitle = `Hijo/a ${index + 1}`;
+                     hijo.querySelectorAll('div > label').forEach(label => {
+                        const input = label.parentElement.querySelector('input, select');
+                        if (input) data.push([hijoTitle, label.innerText.trim(), input.value]);
+                    });
+                });
+                
+                document.querySelectorAll('#iglesias-container > div').forEach((iglesia, index) => {
+                     const iglesiaTitle = `Iglesia a cargo N° ${index + 1}`;
+                     iglesia.querySelectorAll('div > label').forEach(label => {
+                        const input = label.parentElement.querySelector('input, select');
+                        if (input) data.push([iglesiaTitle, label.innerText.trim(), input.value]);
+                    });
+                });
+
+                const worksheet = XLSX.utils.aoa_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Ficha Ministerial');
+                worksheet['!cols'] = [ { wch: 30 }, { wch: 40 }, { wch: 30 } ];
+                XLSX.writeFile(workbook, 'Ficha_Ministerial_2025.xlsx');
+                return true;
+            } catch (error) {
+                console.error("Error al generar la hoja de cálculo:", error);
+                showNotification("Error al generar el archivo Excel.", "error");
+                return false;
+            }
+        }
+        
         document.getElementById('btn-exportar-excel').addEventListener('click', function() {
-            const excelButton = this;
+            const button = this;
             const btnText = document.getElementById('excel-btn-text');
             const loader = document.getElementById('excel-loader');
-
+            
             btnText.classList.add('hidden');
             loader.classList.remove('hidden');
-            excelButton.disabled = true;
+            button.disabled = true;
 
-            // Usamos un timeout para que el loader se muestre antes de empezar el trabajo pesado
             setTimeout(() => {
-                try {
-                    const data = [['Sección', 'Campo', 'Valor']]; // Encabezados
-                    const formContainer = document.getElementById('formulario-exportar');
-
-                    // Recorremos cada sección del formulario
-                    formContainer.querySelectorAll('.form-section').forEach(section => {
-                        const sectionTitle = section.querySelector('.form-section-title').innerText.trim();
-
-                        // Extraer datos de inputs y selects normales
-                        section.querySelectorAll('div > label').forEach(label => {
-                            const containerDiv = label.parentElement;
-                            const input = containerDiv.querySelector('input:not([type="file"]):not([type="checkbox"]), select');
-                            if (input) {
-                                const fieldName = label.innerText.trim();
-                                const value = input.value;
-                                data.push([sectionTitle, fieldName, value]);
-                            }
-                        });
-                        
-                        // Extraer datos de checkboxes
-                        section.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                            const label = checkbox.nextElementSibling;
-                            if (label) {
-                                const fieldName = label.innerText.trim();
-                                const value = checkbox.checked ? 'Sí' : 'No';
-                                data.push([sectionTitle, fieldName, value]);
-                            }
-                        });
-
-                        // Extraer datos de las fichas de hijos generadas dinámicamente
-                        section.querySelectorAll('#hijos-container > div').forEach((hijo, index) => {
-                             const hijoTitle = `Hijo/a ${index + 1}`;
-                             hijo.querySelectorAll('div > label').forEach(label => {
-                                const input = label.parentElement.querySelector('input, select');
-                                if (input) {
-                                    const fieldName = label.innerText.trim();
-                                    const value = input.value;
-                                    data.push([hijoTitle, fieldName, value]);
-                                }
-                            });
-                        });
-                        
-                        // Extraer datos de las fichas de iglesias generadas dinámicamente
-                        section.querySelectorAll('#iglesias-container > div').forEach((iglesia, index) => {
-                             const iglesiaTitle = `Iglesia a cargo N° ${index + 1}`;
-                             iglesia.querySelectorAll('div > label').forEach(label => {
-                                const input = label.parentElement.querySelector('input, select');
-                                if (input) {
-                                    const fieldName = label.innerText.trim();
-                                    const value = input.value;
-                                    data.push([iglesiaTitle, fieldName, value]);
-                                }
-                            });
-                        });
-                    });
-
-                    // Crear la hoja de cálculo
-                    const worksheet = XLSX.utils.aoa_to_sheet(data);
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Ficha Ministerial');
-
-                    // Ajustar el ancho de las columnas
-                    worksheet['!cols'] = [ { wch: 30 }, { wch: 40 }, { wch: 30 } ];
-
-                    // Descargar el archivo
-                    XLSX.writeFile(workbook, 'Ficha_Ministerial_2025.xlsx');
-
-                } catch (error) {
-                    console.error("Error al generar la hoja de cálculo:", error);
-                    alert("Ocurrió un error al generar el archivo. Revise la consola para más detalles.");
-                } finally {
-                    // Restaurar el botón
-                    btnText.classList.remove('hidden');
-                    loader.classList.add('hidden');
-                    excelButton.disabled = false;
-                }
-            }, 100); // Fin del timeout
+                exportToExcel();
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                button.disabled = false;
+            }, 100);
         });
 
-        // Animación para las fichas generadas
+        // --- LÓGICA PARA ENVIAR Y DESCARGAR ---
+        document.getElementById('btn-send-copy').addEventListener('click', function() {
+            const button = this;
+            const btnText = document.getElementById('send-btn-text');
+            const loader = document.getElementById('send-loader');
+            
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            button.disabled = true;
+
+            setTimeout(() => {
+                if (exportToExcel()) {
+                    const nombreMinistro = document.getElementById('ministro-nombre-completo').value || 'Sin Nombre';
+                    const subject = `Ficha Ministerial 2025 - ${nombreMinistro}`;
+                    const body = "Saludos,\n\nAdjunto la Ficha Ministerial completada.\n\nPor favor, no olvide adjuntar el archivo Excel que se acaba de descargar.";
+                    const mailtoLink = `mailto:hmalldm95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    
+                    window.location.href = mailtoLink;
+                    showNotification("Correo listo para enviar. ¡No olvides adjuntar el archivo!");
+                }
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                button.disabled = false;
+            }, 100);
+        });
+
+        // --- LÓGICA PARA GUARDAR Y CARGAR BORRADOR ---
+        const DRAFT_KEY = 'fichaMinisterialDraft';
+
+        function getElementIdentifier(element) {
+            const section = element.closest('.form-section');
+            const dynamicParent = element.closest('[data-index]');
+            let label = element.parentElement.querySelector('label');
+            if (!label) { // For checkboxes
+                label = element.nextElementSibling;
+            }
+            if (!label) return null;
+
+            let key = label.innerText.trim();
+            if (dynamicParent) {
+                const containerId = dynamicParent.parentElement.id;
+                const index = dynamicParent.dataset.index;
+                key = `${containerId}_${index}_${key}`;
+            } else if (section) {
+                const sectionTitle = section.querySelector('.form-section-title').innerText.trim();
+                key = `${sectionTitle}_${key}`;
+            }
+            return key.replace(/\s+/g, '_'); // Sanitize key
+        }
+        
+        document.getElementById('btn-save-draft').addEventListener('click', function() {
+            const formData = {};
+            document.querySelectorAll('#formulario-exportar input:not([type="file"]), #formulario-exportar select').forEach(el => {
+                const key = getElementIdentifier(el);
+                if (key) {
+                    formData[key] = el.type === 'checkbox' ? el.checked : el.value;
+                }
+            });
+
+            // Guardar src de las imágenes
+            formData.ministro_photo_src = document.getElementById('ministro-photo-preview').src;
+            formData.esposa_photo_src = document.getElementById('esposa-photo-preview').src;
+
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
+            showNotification("Borrador guardado exitosamente.", "success");
+        });
+
+        document.getElementById('btn-load-draft').addEventListener('click', function() {
+            const savedData = localStorage.getItem(DRAFT_KEY);
+            if (!savedData) {
+                showNotification("No se encontró ningún borrador guardado.", "error");
+                return;
+            }
+            const formData = JSON.parse(savedData);
+            
+            // Regenerar fichas dinámicas
+            const cantidadHijosKey = 'Información_de_los_Hijos_¿Cuántos_Hijos_Tiene?';
+            if (formData[cantidadHijosKey]) {
+                document.getElementById('cantidad-hijos').value = formData[cantidadHijosKey];
+                generarFichasHijos(formData[cantidadHijosKey]);
+            }
+            const cantidadIglesiasKey = 'Récord_Ministerial_¿En_cuántas_iglesias_ha_estado_a_cargo?';
+            if (formData[cantidadIglesiasKey]) {
+                document.getElementById('cantidad-iglesias').value = formData[cantidadIglesiasKey];
+                generarFichasIglesias(formData[cantidadIglesiasKey]);
+            }
+
+            // Usamos un timeout para dar tiempo al DOM a crear las fichas dinámicas
+            setTimeout(() => {
+                document.querySelectorAll('#formulario-exportar input:not([type="file"]), #formulario-exportar select').forEach(el => {
+                    const key = getElementIdentifier(el);
+                    if (key && formData[key] !== undefined) {
+                        if (el.type === 'checkbox') {
+                            el.checked = formData[key];
+                        } else {
+                            el.value = formData[key];
+                        }
+                    }
+                });
+
+                // Cargar imágenes
+                if (formData.ministro_photo_src && formData.ministro_photo_src.startsWith('data:image')) {
+                    document.getElementById('ministro-photo-preview').src = formData.ministro_photo_src;
+                    document.getElementById('ministro-photo-preview').classList.remove('hidden');
+                    document.getElementById('ministro-photo-placeholder').classList.add('hidden');
+                }
+                if (formData.esposa_photo_src && formData.esposa_photo_src.startsWith('data:image')) {
+                    document.getElementById('esposa-photo-preview').src = formData.esposa_photo_src;
+                    document.getElementById('esposa-photo-preview').classList.remove('hidden');
+                    document.getElementById('esposa-photo-placeholder').classList.add('hidden');
+                }
+
+                showNotification("Borrador cargado correctamente.", "success");
+            }, 100);
+        });
+
+        // --- Lógica para Notificaciones ---
+        function showNotification(message, type = 'success') {
+            const notificationArea = document.getElementById('notification-area');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+            const notification = document.createElement('div');
+            notification.className = `px-6 py-3 rounded-lg text-white ${bgColor} shadow-lg flex items-center transform animate-slide-in`;
+            notification.innerHTML = `<i class="fa-solid ${icon} mr-3"></i> ${message}`;
+            
+            notificationArea.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('animate-slide-in');
+                notification.classList.add('animate-slide-out');
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+
+        // --- Animación para las fichas generadas ---
         const style = document.createElement('style');
         style.innerHTML = `
             @keyframes animate-fade-in {
@@ -425,6 +570,6 @@
         `;
         document.head.appendChild(style);
     </script>
-
 </body>
 </html>
+
