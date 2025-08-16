@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Ministerial Digital </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos personalizados y mejoras de diseño */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un fondo más suave */
+        }
+        .form-section {
+            @apply bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/80 mb-8 transition-all duration-300;
+        }
+        .form-section-title {
+            @apply flex items-center text-2xl font-bold text-gray-800 mb-6 pb-3 border-b-2 border-indigo-500;
+        }
+        .form-section-title i {
+            @apply mr-3 text-indigo-500 text-2xl;
+        }
+        .form-label {
+            @apply block text-sm font-medium text-gray-600 mb-1;
+        }
+        .form-input {
+            @apply block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300;
+        }
+        .grid-cols-form {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        .photo-placeholder {
+            @apply w-36 h-44 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-500 border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-200 hover:border-indigo-400 transition-all duration-300;
+        }
+        .photo-placeholder i {
+            @apply text-4xl mb-2 text-gray-400;
+        }
+        .photo-preview {
+            @apply w-36 h-44 rounded-lg object-cover shadow-md;
+        }
+        .main-button {
+            @apply bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold py-3 px-8 rounded-full hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 text-lg transition-all duration-300;
+        }
+        .secondary-button {
+            @apply bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-lg hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <div id="app-container" class="max-w-7xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-800">Ficha Ministerial Digital</h1>
+            <p class="text-lg text-gray-600 mt-2">Edición 2025</p>
+        </header>
+
+        <div id="formulario-exportar">
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-user-tie"></i>Información del Ministro</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="flex flex-col items-center lg:items-start">
+                        <label class="form-label">Foto</label>
+                        <div id="ministro-photo-placeholder" class="photo-placeholder" onclick="document.getElementById('ministro-photo-input').click()">
+                            <i class="fa-solid fa-camera-retro"></i>
+                            <span>Subir Foto</span>
+                        </div>
+                        <img id="ministro-photo-preview" class="photo-preview hidden" alt="Foto del Ministro"/>
+                        <input type="file" id="ministro-photo-input" class="hidden" accept="image/*" onchange="previewImage(event, 'ministro-photo-preview', 'ministro-photo-placeholder')">
+                    </div>
+                    <div class="grid grid-cols-form gap-6 col-span-1 lg:col-span-3">
+                        <div><label class="form-label">Nombre Completo (Según la cédula)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Nacimiento</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Ciudad</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Departamento</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">País</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Bautismo</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Iglesia (Bautismo)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Quien Bautizó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Bautismo Espiritual</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Iglesia (Espiritual)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Quien Testificó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">¿Se casó por la Iglesia?</label><select class="form-input"><option>Sí</option><option>No</option><option>Unión Libre</option></select></div>
+                        <div><label class="form-label">Fecha de Matrimonio</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Quien los Casó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Iglesia (Matrimonio)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha que Salió a la Obra</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Salió Soltero o Casado</label><select class="form-input"><option>Soltero</option><option>Casado</option></select></div>
+                        <div><label class="form-label">Lugar donde salió</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Ministro que lo recomendó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Nivel Académico</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Conocimiento de Oficio</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Nombre del Padre</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">¿Vive Aún? (Padre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">¿Es Hermano? (Padre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Nombre de la Madre</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">¿Vive Aún? (Madre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">¿Es Hermano? (Madre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Posee Visa</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Vigente (Visa)</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Posee Residencia</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Vigente (Residencia)</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Enfermedad</label><select class="form-input"><option>No</option><option>Sí</option></select></div>
+                        <div><label class="form-label">Tipo de Enfermedad</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Desde Cuando</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">¿Está en Tratamiento?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-user-group"></i>Información de la Esposa</h2>
+                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="flex flex-col items-center lg:items-start">
+                        <label class="form-label">Foto</label>
+                        <div id="esposa-photo-placeholder" class="photo-placeholder" onclick="document.getElementById('esposa-photo-input').click()">
+                            <i class="fa-solid fa-camera-retro"></i>
+                            <span>Subir Foto</span>
+                        </div>
+                        <img id="esposa-photo-preview" class="photo-preview hidden" alt="Foto de la Esposa"/>
+                        <input type="file" id="esposa-photo-input" class="hidden" accept="image/*" onchange="previewImage(event, 'esposa-photo-preview', 'esposa-photo-placeholder')">
+                    </div>
+                    <div class="grid grid-cols-form gap-6 col-span-1 lg:col-span-3">
+                        <div><label class="form-label">Nombre Completo (Según la cédula)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Nacimiento</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Ciudad</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Departamento</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">País</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Bautismo</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Iglesia (Bautismo)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Quien Bautizó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha de Bautismo Espiritual</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Iglesia (Espiritual)</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Quien Testificó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Fecha que Salió a la Obra</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Salió Soltera o Casada</label><select class="form-input"><option>Soltera</option><option>Casada</option></select></div>
+                        <div><label class="form-label">Lugar donde salió</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Ministro que la recomendó</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Nivel Académico</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Conocimiento de Oficio</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Nombre del Padre</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">¿Vive Aún? (Padre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">¿Es Hermano? (Padre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Nombre de la Madre</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">¿Vive Aún? (Madre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">¿Es Hermano? (Madre)</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Posee Visa</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Vigente (Visa)</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Posee Residencia</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        <div><label class="form-label">Vigente (Residencia)</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">Enfermedad</label><select class="form-input"><option>No</option><option>Sí</option></select></div>
+                        <div><label class="form-label">Tipo de Enfermedad</label><input type="text" class="form-input"></div>
+                        <div><label class="form-label">Desde Cuando</label><input type="date" class="form-input"></div>
+                        <div><label class="form-label">¿Está en Tratamiento?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-book-bible"></i>Ministerio</h2>
+                <div class="grid grid-cols-form gap-6">
+                    <div><label class="form-label">Fecha de Obrero Evangelista</label><input type="date" class="form-input"></div>
+                    <div><label class="form-label">Fecha de Encargado Evangelista</label><input type="date" class="form-input"></div>
+                    <div><label class="form-label">Fecha de Pastor Evangelista</label><input type="date" class="form-input"></div>
+                    <div><label class="form-label">Fecha de Diácono Evangelista</label><input type="date" class="form-input"></div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mt-8 mb-4">Funciones Ministeriales</h3>
+                <div class="grid grid-cols-form gap-6">
+                    <div><label class="form-label">Ministerio o Comisión que colabora</label><input type="text" class="form-input"></div>
+                    <div><label class="form-label">Cargo dentro del Ministerio</label><input type="text" class="form-input"></div>
+                    <div><label class="form-label">Desde Cuando</label><input type="date" class="form-input"></div>
+                    <div><label class="form-label">Cambio o Cese de Ministerio</label><input type="date" class="form-input"></div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mt-8 mb-4">Trabajo material realizado en la obra</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb1" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb1">Compra de terreno</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb2" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb2">Cancelar deuda</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb3" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb3">Comenzar a pagar</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb4" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb4">Continuar pagando</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb5" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb5">Iniciar construcción</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb6" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb6">Finalizar Construcción</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb7" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb7">Elaboración de planos</label></div>
+                    <div class="flex items-center p-2 bg-gray-50 rounded-lg"><input id="cb8" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3"><label for="cb8">Aprobación de planos</label></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-gavel"></i>Disciplina Ministerial</h2>
+                <div class="grid grid-cols-form gap-6">
+                    <div><label class="form-label">¿Ha sido puesto en disciplina alguna vez?</label><select class="form-input"><option>No</option><option>Sí</option></select></div>
+                    <div><label class="form-label">¿En qué fecha?</label><input type="date" class="form-input"></div>
+                    <div class="col-span-1 md:col-span-2"><label class="form-label">Tipo de Falta Cometida</label><input type="text" class="form-input"></div>
+                    <div><label class="form-label">Pastor que Juzgó la Falta</label><input type="text" class="form-input"></div>
+                    <div><label class="form-label">¿Salió culpable o inocente?</label><select class="form-input"><option>Culpable</option><option>Inocente</option></select></div>
+                    <div><label class="form-label">¿Hubo testigos en el juicio?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                    <div><label class="form-label">¿Fue recogido o suspendido?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                    <div><label class="form-label">¿Por cuánto tiempo?</label><input type="text" class="form-input"></div>
+                    <div><label class="form-label">¿Cambiado de Iglesia?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                    <div><label class="form-label">¿Solo recibió amonestación?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-children"></i>Información de los Hijos</h2>
+                <div class="flex flex-wrap items-end gap-4 mb-6 p-4 bg-indigo-50 rounded-lg">
+                    <div>
+                        <label for="cantidad-hijos" class="form-label">¿Cuántos Hijos Tiene?</label>
+                        <input type="number" id="cantidad-hijos" class="form-input" min="0" value="0">
+                    </div>
+                    <div>
+                        <label for="cantidad-varones" class="form-label">¿Cuántos Varones?</label>
+                        <input type="number" id="cantidad-varones" class="form-input" min="0" value="0">
+                    </div>
+                    <div>
+                        <label for="cantidad-mujeres" class="form-label">¿Cuántas Mujeres?</label>
+                        <input type="number" id="cantidad-mujeres" class="form-input" min="0" value="0">
+                    </div>
+                    <button id="btn-generar-hijos" class="secondary-button">
+                        <i class="fa-solid fa-plus mr-2"></i>Generar Fichas
+                    </button>
+                </div>
+                <div id="hijos-container" class="space-y-6">
+                    </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="form-section-title"><i class="fa-solid fa-church"></i>Récord Ministerial</h2>
+                <div class="flex flex-wrap items-end gap-4 mb-6 p-4 bg-indigo-50 rounded-lg">
+                    <div>
+                        <label for="cantidad-iglesias" class="form-label">¿En cuántas iglesias ha estado a cargo?</label>
+                        <input type="number" id="cantidad-iglesias" class="form-input" min="0" value="0">
+                    </div>
+                    <button id="btn-generar-iglesias" class="secondary-button">
+                        <i class="fa-solid fa-plus mr-2"></i>Generar Fichas
+                    </button>
+                </div>
+                <div id="iglesias-container" class="space-y-6">
+                    </div>
+            </div>
+        </div>
+
+        <div class="mt-10 mb-6 text-center">
+            <button id="btn-exportar-excel" class="main-button">
+                <span id="excel-btn-text"><i class="fa-solid fa-file-excel mr-2"></i>Exportar a Hoja de Cálculo</span>
+                <span id="excel-loader" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Exportando...</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Lógica para previsualizar imágenes ---
+        function previewImage(event, previewId, placeholderId) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const preview = document.getElementById(previewId);
+                preview.src = reader.result;
+                preview.classList.remove('hidden');
+                document.getElementById(placeholderId).classList.add('hidden');
+            };
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
+        // --- Lógica para generar fichas de Hijos ---
+        document.getElementById('btn-generar-hijos').addEventListener('click', function() {
+            const cantidad = document.getElementById('cantidad-hijos').value;
+            const container = document.getElementById('hijos-container');
+            container.innerHTML = ''; // Limpiar contenedor
+
+            for (let i = 1; i <= cantidad; i++) {
+                const hijoHTML = `
+                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in">
+                        <h3 class="font-bold text-lg mb-4 text-indigo-700">Datos del Hijo/a ${i}</h3>
+                        <div class="grid grid-cols-form gap-4">
+                            <div><label class="form-label">Nombre Completo</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Fecha de Nacimiento</label><input type="date" class="form-input"></div>
+                            <div><label class="form-label">Nivel Académico</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Conocimiento de Oficios</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Enfermedad</label><select class="form-input"><option>No</option><option>Sí</option></select></div>
+                            <div><label class="form-label">Tipo de Enfermedad</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Desde Cuando</label><input type="date" class="form-input"></div>
+                            <div><label class="form-label">¿Está en Tratamiento?</label><select class="form-input"><option>Sí</option><option>No</option></select></div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += hijoHTML;
+            }
+        });
+
+        // --- Lógica para generar fichas de Iglesias ---
+        document.getElementById('btn-generar-iglesias').addEventListener('click', function() {
+            const cantidad = document.getElementById('cantidad-iglesias').value;
+            const container = document.getElementById('iglesias-container');
+            container.innerHTML = ''; // Limpiar contenedor
+
+            for (let i = 1; i <= cantidad; i++) {
+                const iglesiaHTML = `
+                    <div class="p-5 border border-gray-200 rounded-xl bg-white/80 shadow-md animate-fade-in">
+                        <h3 class="font-bold text-lg mb-4 text-indigo-700">Datos de la Iglesia ${i} donde fue enviado</h3>
+                        <div class="grid grid-cols-form gap-4">
+                            <div><label class="form-label">Iglesia</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Lugar</label><input type="text" class="form-input"></div>
+                            <div><label class="form-label">Fecha de Llegada</label><input type="date" class="form-input"></div>
+                            <div><label class="form-label">Fecha en que fue Cambiado</label><input type="date" class="form-input"></div>
+                            <div><label class="form-label">Cantidad de Miembros que Recibió</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos Bautismos Tuvo</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos Sellados Tuvo</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos Restaurados</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántas Presentaciones de 40 días</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos Matrimonios</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos de Honra</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos Miembros dejó Registrados</label><input type="number" class="form-input" min="0"></div>
+                            <div><label class="form-label">Cuántos en Casa</label><input type="number" class="form-input" min="0"></div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += iglesiaHTML;
+            }
+        });
+
+        // --- NUEVA LÓGICA PARA EXPORTAR A HOJA DE CÁLCULO ---
+        document.getElementById('btn-exportar-excel').addEventListener('click', function() {
+            const excelButton = this;
+            const btnText = document.getElementById('excel-btn-text');
+            const loader = document.getElementById('excel-loader');
+
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            excelButton.disabled = true;
+
+            // Usamos un timeout para que el loader se muestre antes de empezar el trabajo pesado
+            setTimeout(() => {
+                try {
+                    const data = [['Sección', 'Campo', 'Valor']]; // Encabezados
+                    const formContainer = document.getElementById('formulario-exportar');
+
+                    // Recorremos cada sección del formulario
+                    formContainer.querySelectorAll('.form-section').forEach(section => {
+                        const sectionTitle = section.querySelector('.form-section-title').innerText.trim();
+
+                        // Extraer datos de inputs y selects normales
+                        section.querySelectorAll('div > label').forEach(label => {
+                            const containerDiv = label.parentElement;
+                            const input = containerDiv.querySelector('input:not([type="file"]):not([type="checkbox"]), select');
+                            if (input) {
+                                const fieldName = label.innerText.trim();
+                                const value = input.value;
+                                data.push([sectionTitle, fieldName, value]);
+                            }
+                        });
+                        
+                        // Extraer datos de checkboxes
+                        section.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                            const label = checkbox.nextElementSibling;
+                            if (label) {
+                                const fieldName = label.innerText.trim();
+                                const value = checkbox.checked ? 'Sí' : 'No';
+                                data.push([sectionTitle, fieldName, value]);
+                            }
+                        });
+
+                        // Extraer datos de las fichas de hijos generadas dinámicamente
+                        section.querySelectorAll('#hijos-container > div').forEach((hijo, index) => {
+                             const hijoTitle = `Hijo/a ${index + 1}`;
+                             hijo.querySelectorAll('div > label').forEach(label => {
+                                const input = label.parentElement.querySelector('input, select');
+                                if (input) {
+                                    const fieldName = label.innerText.trim();
+                                    const value = input.value;
+                                    data.push([hijoTitle, fieldName, value]);
+                                }
+                            });
+                        });
+                        
+                        // Extraer datos de las fichas de iglesias generadas dinámicamente
+                        section.querySelectorAll('#iglesias-container > div').forEach((iglesia, index) => {
+                             const iglesiaTitle = `Iglesia a cargo N° ${index + 1}`;
+                             iglesia.querySelectorAll('div > label').forEach(label => {
+                                const input = label.parentElement.querySelector('input, select');
+                                if (input) {
+                                    const fieldName = label.innerText.trim();
+                                    const value = input.value;
+                                    data.push([iglesiaTitle, fieldName, value]);
+                                }
+                            });
+                        });
+                    });
+
+                    // Crear la hoja de cálculo
+                    const worksheet = XLSX.utils.aoa_to_sheet(data);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Ficha Ministerial');
+
+                    // Ajustar el ancho de las columnas
+                    worksheet['!cols'] = [ { wch: 30 }, { wch: 40 }, { wch: 30 } ];
+
+                    // Descargar el archivo
+                    XLSX.writeFile(workbook, 'Ficha_Ministerial_2025.xlsx');
+
+                } catch (error) {
+                    console.error("Error al generar la hoja de cálculo:", error);
+                    alert("Ocurrió un error al generar el archivo. Revise la consola para más detalles.");
+                } finally {
+                    // Restaurar el botón
+                    btnText.classList.remove('hidden');
+                    loader.classList.add('hidden');
+                    excelButton.disabled = false;
+                }
+            }, 100); // Fin del timeout
+        });
+
+        // Animación para las fichas generadas
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes animate-fade-in {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: animate-fade-in 0.5s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+</body>
+</html>
